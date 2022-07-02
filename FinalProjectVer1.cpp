@@ -58,26 +58,6 @@ public :
     {
         return up == pass ; 
     }
-    void setname (string n)
-    {
-        name = n ; 
-    }
-    void setLname(string ln)
-    {
-        Lname = ln ; 
-    }
-    void setID(string i)
-    {
-        ID = i ; 
-    }
-    void setCCnum(string cc)
-    {
-        CCnum = cc ; 
-    }
-    void setShaba(string sh)
-    {
-        shaba = sh ; 
-    }
     void Deposit(int n )
     {
         wallet += n ; 
@@ -90,26 +70,13 @@ public :
     {
         debt += n ; 
     }
-    int getDebt()
-    {
-        return debt ; 
-    }
     void paydebts(int n )
     {
         debt -= n ;
     }
-    user (string u , string pas) 
-    {
-        uid = u ;
-        pass = pas ; 
-    }
     void setverified (int n)
     {
         isverified = n ; 
-    }
-    int getverified()
-    {
-        return isverified ; 
     }
     void save(ofstream &data)
     {
@@ -120,6 +87,38 @@ public :
             data<< UserStocks[i]<<" " ; 
         }
     }
+    int getverified()
+    {
+        return isverified ; 
+    }
+    int getDebt()
+    {
+        return debt ; 
+    }    
+    int getMoney()
+    {
+        return wallet ; 
+    }
+    void addstock(string n)
+    {
+        UserStocks.push_back(n) ; 
+    }
+    void setuser(string n , string ln , string i , string cc , string sh )
+    {
+        name = n ;
+        Lname = ln ; 
+        ID = i ; 
+        CCnum = cc ; 
+        shaba = sh ;
+        isverified = 1 ;
+        wallet = 0 ; 
+        debt = 0; 
+    }
+    user (string u , string pas) 
+    {
+        uid = u ;
+        pass = pas ; 
+    }      
     user(ifstream &data)
     {
         data>>name>>Lname>>uid>>pass>>ID>>shaba>>CCnum>>wallet>>debt>>isverified ; 
@@ -133,14 +132,6 @@ public :
 
         }
     }
-    int getMoney()
-    {
-        return wallet ; 
-    }
-    void addstock(string n)
-    {
-        UserStocks.push_back(n) ; 
-    }
 private : 
     string name ; 
     string Lname ; 
@@ -149,13 +140,11 @@ private :
     string shaba ; 
     string ID ; 
     string CCnum ; 
-    static int debt  ; 
-    static int wallet ; 
+    int debt  ; 
+    int wallet ; 
     bool isverified ; 
     vector<string> UserStocks ; 
 };
-int user::wallet = 0 ; 
-int user::debt = 0 ;
 
 
 int passcheck(string str) // validate chosen password 
@@ -330,12 +319,13 @@ int main()
                         cout<<"IR" ; 
                         cin>>Shaba ; 
                         Shaba = Shaba.substr(0,10) ; 
-                        users[CurrentUser].setname(name) ; 
+                        /*users[CurrentUser].setname(name) ; 
                         users[CurrentUser].setLname(Lname) ; 
                         users[CurrentUser].setID(ID) ;
                         users[CurrentUser].setCCnum(CCnum) ; 
                         users[CurrentUser].setShaba(Shaba) ; 
-                        users[CurrentUser].setverified(1) ; 
+                        users[CurrentUser].setverified(1) ; */
+                        users[CurrentUser].setuser(name,Lname,ID,CCnum,Shaba);
                         cout<<"profile completed successfully\n" ; 
                         // cout<<CurrentUser<<"\n" ;
                         cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
@@ -379,7 +369,7 @@ int main()
                         string temp ; 
                         stream>>temp ; 
                         users[CurrentUser].withdraw(n*stocks[index].getprice()) ;
-                        users[CurrentUser].addstock(temp+" "+stocks[index].getsymbol()) ;
+                        users[CurrentUser].addstock(temp+" "+stocks[index].getsymbol()+"\n") ;
 
                     }
 
