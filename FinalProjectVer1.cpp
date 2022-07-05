@@ -1,28 +1,18 @@
 #include <bits/stdc++.h>
 using namespace std;
-// ---- A Drunk Man Will Find His Way Home but a Drunk Bird May Get Lost Forever =) ----
+// ---- A Drunk Man Will Find His Way Home but a Drunk Bird May Get Lost Forever =) ---- //
+// ---- Well , let's See will Drunk Man Find His Way Home ? ---- // 
 
 class sahm
 {
 public : 
-    sahm(string n , string fn , int p , int v )
-    {
-        namad = n ; 
-        fullname = fn ; 
-        price = p ; 
-        volume = v ; 
-    }
-    void save(ofstream &data)
-    {
-        data<<namad<<"\n"<<fullname<<"\n"<<price<<"\n"<<volume<<"\n";
-    }
-    sahm(ifstream &data)
-    {
-        data>>namad>>fullname>>price>>volume ;
-    }
     void print()
     {
         cout<<"Symbol : "<<namad<<"\n"<<"shortname : "<<fullname<<"\n"<<"price :"<<price<<"\n"<<"volume :"<<volume<<"\n" ; 
+    }  
+    void save(ofstream &data)
+    {
+        data<<namad<<"\n"<<fullname<<"\n"<<price<<"\n"<<volume<<"\n";
     }
     bool has_symbol(string s)
     {
@@ -36,11 +26,23 @@ public :
     {
         return namad ; 
     }
-private : 
+    sahm(string n , string fn , int p , int v )
+    {
+        namad = n ; 
+        fullname = fn ; 
+        price = p ; 
+        volume = v ; 
+    }
+    sahm(ifstream &data)
+    {
+        data>>namad>>fullname>>price>>volume ;
+    }
+
+    private : 
     string namad ; 
     string fullname ; 
     int price ; 
-    int volume ; 
+    long long int volume ; 
 };
 
 class user  // creating a class for user 
@@ -82,9 +84,9 @@ public :
     {
         data<<name<<" "<<Lname<<"\n"<<uid<<"\n"<<pass<<"\n"<<ID<<"\n"<<shaba<<"\n"<<CCnum<<"\n"<<wallet<<"\n"<<debt<<"\n"<<isverified<<"\n" ; 
         data << UserStocks.size()<<"\n" ; 
-        for (int i = 0 ; i < UserStocks.size() ; i ++) 
+        for(auto it = UserStocks.begin() ; it != UserStocks.end() ; it++)
         {
-            data<< UserStocks[i]<<" " ; 
+            data<<it->first <<" "<<it->second<<"\n" ; 
         }
     }
     int getverified()
@@ -99,9 +101,9 @@ public :
     {
         return wallet ; 
     }
-    void addstock(string n)
+    void addstock(string n , int c)
     {
-        UserStocks.push_back(n) ; 
+        UserStocks[n] += c ;
     }
     void setuser(string n , string ln , string i , string cc , string sh )
     {
@@ -127,10 +129,36 @@ public :
         for(int i = 0 ; i < tedad ; i++)
         {
             string s ; 
+            int d ; 
             data>>s ;
-            UserStocks.push_back(s) ;  
-
+            data>>d ; 
+            UserStocks[s] = d ; 
         }
+    }
+    void printUserStocks()
+    {
+        for(auto it = UserStocks.begin() ; it != UserStocks.end() ; it++)
+        {
+            if(it->second == 0 ) pass ; 
+            else 
+            {
+                cout<<it->first <<" "<<it->second<<"\n" ; 
+            }
+        }
+    }
+    bool has_stock(string s)
+    {
+        if (UserStocks.find(s) != UserStocks.end()) return true ; 
+        return false ; 
+    }
+    bool has_count_stock(string s , int n)
+    {
+        if(UserStocks[s] < n) return false ;
+        return true ; 
+    }
+    void sell(string n , int c )
+    {
+        UserStocks[n] -= c ;
     }
 private : 
     string name ; 
@@ -141,9 +169,9 @@ private :
     string ID ; 
     string CCnum ; 
     int debt  ; 
-    int wallet ; 
+    int wallet  ; 
     bool isverified ; 
-    vector<string> UserStocks ; 
+    map<string,int> UserStocks ; 
 };
 
 
@@ -171,21 +199,22 @@ int passcheck(string str) // validate chosen password
 int main()
 {
 
-    ifstream UserData ("users.txt") ;
-    ifstream Stocks_file ("stock_market_data.csv") ;
-    vector<sahm> stocks ; 
-    vector<user> users ; 
-    int tedad = 0 ;
-    UserData >> tedad ; 
-    for(int i = 0 ; i < tedad ; i++)
+    ifstream UserData ("users.txt") ; // load users data from file 
+    ifstream Stocks_file ("stock_market_data.csv") ; // load stocks file from file 
+    vector<sahm> stocks ; // create a vector of stocks 
+    vector<user> users ;  // create a vector of users 
+    int tedad = 0 ; // user counts 
+    UserData >> tedad ; // getting user counts from file
+    for(int i = 0 ; i < tedad ; i++) //geting all users data from file 
     {
         user newuser(UserData) ;
         users.push_back(newuser) ; 
     }
-    UserData.close() ; 
+    UserData.close() ; // closing the file to save changes 
+
     string line ; 
-    getline(Stocks_file, line) ; 
-    while(getline(Stocks_file, line))
+    getline(Stocks_file, line) ; // to ignore the first line of the file 
+    while(getline(Stocks_file, line)) // getting data from file 
     {
         string id ; 
         string namad ;
@@ -198,9 +227,10 @@ int main()
         getline(line_stream , fullname , ',') ;
         getline(line_stream , price , ',') ;
         getline(line_stream , volume , ',') ;
-        sahm newsahm(namad,fullname,atoi(price.c_str()),atoi(volume.c_str())) ;
-        stocks.push_back(newsahm) ; 
+        sahm newsahm(namad,fullname,atoi(price.c_str()),atoi(volume.c_str())) ; // creating an object with the data pulled 
+        stocks.push_back(newsahm) ; // pushing the object to the vector 
     }
+
     bool lf = 0 ; // checks if user is logged in or not  
     cout<<"Menu : \n register = 1 \n login = 2 \n" ; 
     int CurrentUser = -1 ; // saving current user index 
@@ -281,6 +311,10 @@ int main()
                             if(users[userindex].has_password(up) == true) 
                             {
                                 cout<<"login successful !\n " ; 
+                                if(users[CurrentUser].getverified() == 1)
+                                {
+                                    cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
+                                }                 
                                 flag = 1 ; 
                                 CurrentUser = userindex ; 
                             }
@@ -319,17 +353,9 @@ int main()
                         cout<<"IR" ; 
                         cin>>Shaba ; 
                         Shaba = Shaba.substr(0,10) ; 
-                        /*users[CurrentUser].setname(name) ; 
-                        users[CurrentUser].setLname(Lname) ; 
-                        users[CurrentUser].setID(ID) ;
-                        users[CurrentUser].setCCnum(CCnum) ; 
-                        users[CurrentUser].setShaba(Shaba) ; 
-                        users[CurrentUser].setverified(1) ; */
                         users[CurrentUser].setuser(name,Lname,ID,CCnum,Shaba);
                         cout<<"profile completed successfully\n" ; 
-                        // cout<<CurrentUser<<"\n" ;
                         cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
-                        // users[CurrentUser].printuser() ; 
                     }
 
             }            
@@ -339,7 +365,7 @@ int main()
         {
             if (op == "1")
             {
-                cout<<"Buy panel \n please enter the symbol you want to buy" ; 
+                cout<<"Buy panel \n please enter the symbol you want to buy \n" ; 
                 string symbol ;
                 cin>>symbol ; 
                 int index = -1 ; 
@@ -353,7 +379,8 @@ int main()
                 }
                 if(index == -1)
                 {
-                    cout<<"symbol not found ";
+                    cout<<"symbol not found \n";
+                    cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
                 }
                 else 
                 {
@@ -364,13 +391,17 @@ int main()
                     cin>>n ;
                     if( n*stocks[index].getprice() < UserMoney)
                     {
-                        stringstream stream ; 
-                        stream << n ; 
-                        string temp ; 
-                        stream>>temp ; 
+                         
                         users[CurrentUser].withdraw(n*stocks[index].getprice()) ;
-                        users[CurrentUser].addstock(temp+" "+stocks[index].getsymbol()+"\n") ;
+                        users[CurrentUser].addstock(stocks[index].getsymbol() , n) ;
+                        cout<<"Added to your balance \n" ; 
+                        cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
 
+                    }
+                    else 
+                    {
+                        cout<<"insufficient money , please deposit some money and try again \n" ; 
+                        cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
                     }
 
 
@@ -381,7 +412,44 @@ int main()
             }
             if (op =="2")
             {
-                cout<<"sell panel" ;
+                cout<<"sell panel \n" ;
+                cout<<"what do u want to sell \n" ; 
+                string s ; 
+                cin>>s ; 
+                if (users[CurrentUser].has_stock(s))
+                {
+                    int c ;
+                    cout<<"how much do you want to sell \n" ;
+                    cin>>c ; 
+                    if(users[CurrentUser].has_count_stock(s,c))
+                    {
+                        users[CurrentUser].sell(s ,c) ; 
+                        int money ; 
+                        int index ; 
+                        for(int i = 0 ; i < stocks.size() ; i++)
+                        {
+                            if(stocks[i].has_symbol(s))
+                            {
+                                index = i ;
+                                break ;
+                            }
+                        }
+                        money = stocks[index].getprice() * c ; 
+                        users[CurrentUser].Deposit(money) ; 
+                        cout<<"you've sold your stocks for "<<money<<" tomans \n"; 
+                        cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
+                    }
+                    else 
+                    {
+                        cout<<"insufficient amount of "<<s<<"\n" ; 
+                        cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
+                    }
+                }
+                else 
+                {
+                    cout<<"symbol invalid or you don't have this symbol in your balance " ; 
+                    cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
+                }
             }
             if(op == "3")
             {
@@ -395,7 +463,8 @@ int main()
                     int Dmoney ; 
                     cin >> Dmoney ; 
                     users[CurrentUser].Deposit(Dmoney) ;  
-                    cout<<"Deposited successfully !" ;
+                    cout<<"Deposited successfully ! \n" ;
+                    cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
                 }
                 if(o == "2")
                 {
@@ -404,31 +473,30 @@ int main()
                     cin >> Wmoney ; 
                     users[CurrentUser].withdraw(Wmoney) ; 
                     cout<<"Withdrawed successfully ! \n" ;
+                    cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
                 }
                 if(o == "3")
                 {
-
-                    
-
-                   /* if(users[CurrentUser].getDebt() + n < 1000000 )
+                cout<<"how much do you want to borrow: \n " ; 
+                int n ;
+                cin>>n ;
+                if(users[CurrentUser].getDebt() + n < 1000000 )
                     {
-                        int n ;
-                        cin>>n ;
-                        cout<<"how much do you want to borrow: \n " ; 
                         users[CurrentUser].AddDebt(n) ;
                         users[CurrentUser].Deposit(n) ;
                         cout<<"borrowed successfully !\n " ; 
+                        cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
                     }
                     else 
                     {
-                        cout<<"you've already reached the maximum amount you can borrow \n please pay your debt so you can borrown again \n " ; 
+                        cout<<"you've already reached the maximum amount you can borrow \n please pay your debt so you can borrow again \n " ; 
                         cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit\n" ; 
-                    } */ 
+                    }
                 }
                 if(o == "4")
                 {
                     int debt = users[CurrentUser].getDebt() ; 
-                    cout<<debt<<" Tomans" ;
+                    cout<<debt<<" Tomans"<<"\n" ;
                     cout<<"how much money do you want to pay for your debt \n " ; 
                     int n ;
                     cin>>n ;
@@ -439,6 +507,7 @@ int main()
                         users[CurrentUser].Deposit(r);
                         users[CurrentUser].paydebts(debt);
                         cout<<"you have paid your debt and you've added "<<r<<" Tomans to your wallet \n" ; 
+                        cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
                     }
                     else 
                     {
@@ -446,10 +515,12 @@ int main()
                         if(users[CurrentUser].getDebt() == 0)
                         {
                             cout<<"you've paid your debt" ; 
+                            cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
                         }                        
                         else 
                         {
-                            cout<<"you have paid"<<n<<" Tomans \n remaining debt :"<<users[CurrentUser].getDebt() ;
+                            cout<<"you have paid"<<n<<" Tomans \n remaining debt :"<<users[CurrentUser].getDebt()<<"\n" ;
+                            cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
                         }
                     }
 
@@ -458,7 +529,12 @@ int main()
             }
             if(op == "4")
             {
-                cout<<"your balance" ; 
+                cout<<"viewing your balance \n" ;
+                cout<<users[CurrentUser].getMoney()<<" Tomans \n" ; 
+                users[CurrentUser].printUserStocks() ;
+                cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
+                 
+
             }
             if(op == "5")
             {
@@ -468,6 +544,7 @@ int main()
                     stocks[i].print() ;
                     cout<<"\n" ;  
                 }
+                cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit \n" ;
             }
             if(op == "6")
             {
@@ -491,12 +568,7 @@ int main()
                 cout<<"IR" ; 
                 cin>>Shaba ; 
                 Shaba = Shaba.substr(0,10) ; 
-                users[CurrentUser].setname(name) ; 
-                users[CurrentUser].setLname(Lname) ; 
-                users[CurrentUser].setID(ID) ;
-                users[CurrentUser].setCCnum(CCnum) ; 
-                users[CurrentUser].setShaba(Shaba) ; 
-                users[CurrentUser].setverified(1) ; 
+                users[CurrentUser].setuser(name,Lname,ID,CCnum,Shaba);
                 cout<<"profile completed successfully\n" ; 
                 cout<<"menu: \n 1- buy \n 2- sell \n 3- deposit/withdraw money \n 4- view your stocks balance \n 5- view market \n 6- edit your information \n 0-exit\n" ;
 
@@ -504,9 +576,10 @@ int main()
             if(op == "0")
             {
                 CurrentUser = -1 ; 
+                cout<<"Menu : \n register = 1 \n login = 2 \n" ; 
             }
             
-            if(op == "10") users[CurrentUser].printuser() ;
+            // if(op == "10") users[CurrentUser].printuser() ;
 
         }
 
@@ -534,3 +607,7 @@ int main()
 
     return 0 ;    
 }
+
+// Well Well , It Seems Our Drunk Man Found His Way Home =) //
+// Uh... , See Ya Soon Mate //
+// Good Luck  //
